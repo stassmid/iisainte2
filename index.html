@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StartupX — ИИ для бизнеса</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    header {
+      background: #111827;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    section {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 { color: #111827; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .chatbox {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f9fafb;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 8px;
+      max-width: 80%;
+      line-height: 1.5;
+    }
+    .user {
+      background: #2563eb;
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+      text-align: right;
+    }
+    .bot {
+      background: #e5e7eb;
+      color: #1f2937;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    footer {
+      background: #111827;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Шмидт Компани</h1>
+  <p>Инновационный стартап с ИИ-решением для бизнеса</p>
+</header>
+
+<section>
+  <h2>О проекте</h2>
+  <p>Шмидт Компани - это технологический стартап, который использует искусственный интеллект для оптимизации бизнес-процессов.</p>
+</section>
+
+<section>
+  <h2>ИИ-ассистент для инвесторов</h2>
+  <div class="chatbox">
+    <div class="messages" id="messages">
+      <div class="message bot">Здравствуйте! Я ассистент Шмидт Компани. Готов ответить на любые вопросы о наших инвестициях и технологиях.</div>
+    </div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Спросите что-нибудь..." autocomplete="off" />
+      <button id="sendBtn" onclick="sendMessage()">Отправить</button>
+    </div>
+    <p style="font-size:12px; color:#6b7280; margin-top:10px; text-align:center;"></p>
+  </div>
+</section>
+
+<section>
+  <h2>Контакты</h2>
+  <p>Email: stas.smid@gmail.com</p>
+</section>
+
+<footer>
+  © 2026 Шмидт Компаниw. Все права защищены.
+</footer>
+
+<script>
+  // Функция отправки сообщения
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const messages = document.getElementById('messages');
+    
+    const text = input.value.trim();
+    if (!text) return;
+
+    // 1. Показываем сообщение пользователя
+    addMessage(text, 'user');
+    input.value = '';
+    
+    // Блокируем кнопку пока ждем ответ
+    sendBtn.disabled = true;
+    sendBtn.textContent = '...';
+
+    // 2. Создаем "пузырь" для ответа бота
+    const botMsgDiv = addMessage('Печатает...', 'bot');
+
+    try {
+      // Формируем запрос. Мы говорим ИИ, кто он такой, прямо в URL.
+      const prompt = `Ты профессиональный ассистент стартапа Шмидт Компани. Отвечай кратко, вежливо и только на русском языке. Вопрос инвестора: ${text}`;
+      
+      // Используем Pollinations API (бесплатно, без ключей)
+      // encodeURIComponent нужен, чтобы русский текст корректно передался в ссылке
+      const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`);
+      
+      if (!response.ok) throw new Error('Ошибка сети');
+      
+      const answer = await response.text();
+      
+      // Обновляем текст в пузыре
+      botMsgDiv.textContent = answer;
+
+    } catch (error) {
+      console.error(error);
+      botMsgDiv.textContent = "Извините, сервер перегружен. Попробуйте через 5 секунд.";
+    } finally {
+      // Разблокируем кнопку
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Отправить';
+      messages.scrollTop = messages.scrollHeight;
+    }
+  }
+
+  // Вспомогательная функция для добавления HTML элементов
+  function addMessage(text, sender) {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `message ${sender}`;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div; // Возвращаем элемент, чтобы потом обновить текст бота
+  }
+
+  // Обработка нажатия Enter
+  document.getElementById('userInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+</script>
+
+</body>
+</html>
